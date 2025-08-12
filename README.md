@@ -18,7 +18,7 @@ L’assignment unico è articolato in due parti:
 - Estendere il programma al punto precedente includendo una GUI con:
   - Input box per specificare i parametri  
   - pulsanti start/stop/suspend/resume per avviare/fermare/sospendere/riprendere l'elaborazione
-  - output box dove sia visualizzato man mano  il numero di file analizzati (in totale) fino a quel momento, il numero di file PDF trovati e il numero di file PDF contenenti la parola P. 
+  - output box dove sia visualizzato man mano il numero di file analizzati (in totale) fino a quel momento, il numero di file PDF trovati e il numero di file PDF contenenti la parola P. 
 
 
 Si chiede di sviluppare i due punti considerando in ordine sei approcci distinti, visti nel corso:

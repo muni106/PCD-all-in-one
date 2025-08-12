@@ -1,0 +1,69 @@
+package pcd.ass_single.part1.example;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.encryption.AccessPermission;
+import org.apache.pdfbox.pdmodel.interactive.action.PDTargetDirectory;
+import org.apache.pdfbox.text.PDFTextStripper;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+public class BaseProgram {
+
+    public static void main(String[] args) throws IOException {
+        if ( args.length != 2 ) {
+            usage();
+        }
+
+        int count = 0;
+
+        String directoryPath = args[0];
+        String word = args[1];
+        File directory = new File(directoryPath);
+
+        File[] files = directory.listFiles();
+
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile() && file.getName().endsWith(".pdf")) {
+                    System.out.println("File: " + file.getName());
+                    if (containsWord(file, word)) {
+                        count += 1;
+                    }
+                }
+            }
+        }
+
+        System.out.println(count + " pdf files contains the word: " + word);
+
+    }
+
+    private static boolean containsWord(File pdf, String word) throws IOException {
+        PDDocument document = PDDocument.load(pdf);
+
+        AccessPermission ap = document.getCurrentAccessPermission();
+        if (!ap.canExtractContent()) {
+            throw new IOException("You do not have permission to extract text");
+        }
+        PDFTextStripper stripper = new PDFTextStripper();
+
+        String text = stripper.getText(document);
+
+        for (int i = 0; i < text.length() - word.length() ; ++i) {
+            char[] currWord = word.toCharArray();
+            text.getChars(i, i + word.length(), currWord, 0);
+            if (Arrays.equals(currWord, word.toCharArray())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    private static void usage() {
+        System.err.println("Usage: java " + BaseProgram.class.getName() + " <directory> <word>");
+        System.exit(-1);
+    }
+}
