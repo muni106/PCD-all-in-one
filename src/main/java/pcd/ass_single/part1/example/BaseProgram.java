@@ -55,9 +55,11 @@ public class BaseProgram {
             char[] currWord = word.toCharArray();
             text.getChars(i, i + word.length(), currWord, 0);
             if (Arrays.equals(currWord, word.toCharArray())) {
+                document.close();
                 return true;
             }
         }
+        document.close();
         return false;
     }
 
