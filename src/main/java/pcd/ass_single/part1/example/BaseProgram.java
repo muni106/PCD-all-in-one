@@ -2,12 +2,10 @@ package pcd.ass_single.part1.example;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.AccessPermission;
-import org.apache.pdfbox.pdmodel.interactive.action.PDTargetDirectory;
 import org.apache.pdfbox.text.PDFTextStripper;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 public class BaseProgram {
@@ -19,8 +17,8 @@ public class BaseProgram {
 
         int count = 0;
 
-        String directoryPath = args[0];
-        String word = args[1];
+        String directoryPath = args[0]; // first argument is the directory path
+        String word = args[1]; // second argument is the word
         File directory = new File(directoryPath);
 
         File[] files = directory.listFiles();

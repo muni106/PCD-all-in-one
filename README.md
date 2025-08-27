@@ -29,7 +29,7 @@ Si chiede di sviluppare i due punti considerando in ordine sei approcci distinti
   - Non è consentito l’uso di librerie e classi esterne relative alla gestione degli aspetti di concorrenza: in particolare, relativamente alla libreria java.util.concurrent, è possibile utilizzare (eventualmente) solo le classi utili all’implementazione di monitor. 
 - **Soluzione basata su approccio a virtual threads** 
   - La soluzione in questo caso deve sfruttare i virtual thread (in Java)
-- **Soluzione basata su approccio a task**
+- **Soluzione basata su approccio a task**    
   - La soluzione in questo caso deve sfruttare un approccio a task, usando come framework di riferimento, gli Executor in Java. 
 - **Soluzione basata su programmazione asincrona ad eventi**
   - La soluzione in questo caso deve basarsi su programmazione asincrona ad eventi, basata su architettura di controllo ad event loop, usando un qualsiasi framework a supporto che implementi l'approccio.  Esempio di riferimento visto nel corso: Vert.x, in Java o nel linguaggio che si preferisce. E' possibile usare framework alternativi (es. Node.js in Javascript).  
