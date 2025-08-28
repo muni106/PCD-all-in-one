@@ -56,14 +56,18 @@ public class Worker extends Thread {
 
         String text = stripper.getText(document);
 
-        for (int i = 0; i < text.length() - word.length() ; ++i) {
-            char[] currWord = word.toCharArray();
-            text.getChars(i, i + word.length(), currWord, 0);
-            if (Arrays.equals(currWord, word.toCharArray())) {
-                document.close();
-                return true;
-            }
+        if (text.contains(word)) {
+            document.close();
+            return true;
         }
+//
+//        for (int i = 0; i < text.length() - word.length() ; ++i) {
+//            char[] currWord = word.toCharArray();
+//            text.getChars(i, i + word.length(), currWord, 0);
+//            if (Arrays.equals(currWord, word.toCharArray())) {
+//
+//            }
+//        }
         document.close();
         return false;
     }

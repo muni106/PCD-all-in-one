@@ -24,7 +24,7 @@ public class Monitor {
             numFiles -= analizedFiles;
             if (numFiles == 0) {
                 workersFinished.signal();
-            };
+            }
 
         } finally {
             mutex.unlock();
