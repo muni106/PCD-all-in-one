@@ -1,10 +1,10 @@
-package pcd.ass_single.part1.thread;
+package pcd.ass_single.part1.task_based;
 
 import java.io.File;
 import java.io.IOException;
 
 
-public class ExtractTextSimpleThread {
+public class ExtractText {
 
     public static void main(String[] args) throws IOException {
         if ( args.length != 2 ) {

@@ -1,7 +1,6 @@
-package pcd.ass_single.part1.virtual_threads;
+package pcd.ass_single.part1.task_based;
 
-
-public class Output extends Thread {
+public class Output  extends Thread {
     private final Monitor cell;
 
     public Output(Monitor cell){

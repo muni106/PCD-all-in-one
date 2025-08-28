@@ -21,7 +21,7 @@ public class Monitor {
         try {
             mutex.lock();
             if (found) {
-                count ++;
+                count += 1;
             }
             numFiles -= 1;
             if (numFiles == 0) {

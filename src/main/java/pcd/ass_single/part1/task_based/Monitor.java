@@ -1,4 +1,4 @@
-package pcd.ass_single.part1.thread;
+package pcd.ass_single.part1.task_based;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -17,11 +17,11 @@ public class Monitor {
         count = 0;
     }
 
-    public void updateFoundFiles(int analyzedFiles, int filesFound){
+    public void updateFoundFiles(int analizedFiles, int filesFound){
         try {
             mutex.lock();
             count += filesFound;
-            numFiles -= analyzedFiles;
+            numFiles -= analizedFiles;
             if (numFiles == 0) {
                 workersFinished.signal();
             }

@@ -6,12 +6,11 @@ import org.apache.pdfbox.text.PDFTextStripper;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.Duration;
 import java.util.concurrent.Executors;
 import java.util.stream.IntStream;
 
 
-public class ExtractTextVThread {
+public class ExtractText {
 
     public static void main(String[] args) throws IOException {
         if ( args.length != 2 ) {
