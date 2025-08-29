@@ -5,8 +5,9 @@ public class TextExtractionResult {
     private int numFiles;
 
     public TextExtractionResult(int numFiles) {
+        System.out.println(numFiles);
         this.numFiles = numFiles;
-        count = 0;
+        this.count = 0;
     }
 
     public synchronized void foundFiles(boolean found) {

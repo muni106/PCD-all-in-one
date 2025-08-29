@@ -21,16 +21,18 @@ public class TextExtractionTask implements Runnable {
     @Override
     public void run() {
         if (file.isFile() && file.getName().endsWith(".pdf")) {
-            System.out.println("File: " + file.getName());
+            // System.out.println("File: " + file.getName());
             try {
                 result.foundFiles(containsWord(file, searchedWord));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+        } else {
+            result.foundFiles(false);
         }
     }
 
-    private static boolean containsWord(File pdf, String word) throws IOException {
+    private boolean containsWord(File pdf, String word) throws IOException {
         PDDocument document = PDDocument.load(pdf);
 
         AccessPermission ap = document.getCurrentAccessPermission();

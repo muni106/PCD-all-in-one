@@ -3,7 +3,6 @@ package pcd.ass_single.part1.task_based;
 import java.io.File;
 import java.io.IOException;
 
-
 public class ExtractText {
 
     public static void main(String[] args) throws IOException {
@@ -20,33 +19,29 @@ public class ExtractText {
 
         File[] files = directory.listFiles();
 
-        Monitor m;
-
         if (files != null) {
             // i can decide the number of threads based on the number of files
             int numFiles = files.length;
-            m = new Monitor(numFiles);
 
             if (numFiles < Ncpu) {
                 Nthreads = numFiles;
             }
 
-            int i = 0;
-            int step = numFiles / Nthreads;
+            TextExtractionService service = new TextExtractionService(Nthreads, files, word);
 
-
-            while ((i + step) < numFiles) {
-                new Worker(m, i, i + step, files, word).start();
-                i += step;
+            try {
+                int result = service.compute();
+                System.out.println(result);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
+            System.exit(0);
 
-            new Worker(m, i, numFiles, files, word).start();
-            new Output(m).start();
         }else {
             System.err.println("No files found");
+            System.exit(-1);
+
         }
-
-
     }
 
     private static void usage() {

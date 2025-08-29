@@ -8,27 +8,29 @@ public class TextExtractionService {
 
     private final File[] files;
     private ExecutorService executor;
+    private final String searchedWord;
     private int numFiles;
 
-    public TextExtractionService (int numFiles, int poolSize, File[] files){
+    public TextExtractionService (int poolSize, File[] files, String searchedWord){
         this.files = files;
-        this.numFiles = numFiles;
+        this.numFiles = files.length;
         executor = Executors.newFixedThreadPool(poolSize);
+        this.searchedWord = searchedWord;
     }
 
-    public double compute() throws InterruptedException {
+    public int compute() throws InterruptedException {
 
         TextExtractionResult result = new TextExtractionResult(numFiles);
         for (int i = 0; i < numFiles; i++) {
             try {
-                executor.execute(new TextExtractionTask(result, ));
+                executor.execute(new TextExtractionTask(result, files[i], searchedWord));
                 log("submitted task " + i );
             } catch (Exception e) {
+                System.out.println("errore");
                 e.printStackTrace();
             }
         }
-        double res = result.getResult();
-        return res;
+        return result.getResult();
     }
 
 
