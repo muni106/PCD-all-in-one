@@ -6,14 +6,16 @@ import org.apache.pdfbox.text.PDFTextStripper;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
 public class BaseProgram {
 
     public static void main(String[] args) throws IOException {
+
         if ( args.length != 2 ) {
             usage();
         }
+
+        long startTime = System.currentTimeMillis();
 
         int count = 0;
 
@@ -35,6 +37,9 @@ public class BaseProgram {
         }
 
         System.out.println(count + " pdf files contains the word: " + word);
+        long endTime = System.currentTimeMillis();
+
+        System.out.println("Total time: " + (endTime - startTime) + " ms");
 
     }
 

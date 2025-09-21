@@ -11,6 +11,7 @@ public class ExtractText {
             usage();
         }
         int Ncpu = Runtime.getRuntime().availableProcessors();
+        long startTime = System.currentTimeMillis();
         // A system with Ncpu processors usually achieves optimum utilization with a thread pool of Ncpu + 1 threads
         int Nthreads = Ncpu + 1;
 
@@ -41,7 +42,7 @@ public class ExtractText {
             }
 
             new Worker(m, i, numFiles, files, word).start();
-            new Output(m).start();
+            new Output(m, startTime).start();
         }else {
             System.err.println("No files found");
         }

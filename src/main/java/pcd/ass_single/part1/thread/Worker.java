@@ -6,7 +6,6 @@ import org.apache.pdfbox.text.PDFTextStripper;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
 public class Worker extends Thread {
     final private Monitor cell;
