@@ -24,7 +24,6 @@ public class BaseProgram {
         File directory = new File(directoryPath);
 
         File[] files = directory.listFiles();
-
         if (files != null) {
             for (File file : files) {
                 if (file.isFile() && file.getName().endsWith(".pdf")) {
@@ -59,14 +58,6 @@ public class BaseProgram {
             document.close();
             return true;
         }
-//        for (int i = 0; i < text.length() - word.length() ; ++i) {
-//            char[] currWord = word.toCharArray();
-//            text.getChars(i, i + word.length(), currWord, 0);
-//            if (Arrays.equals(currWord, word.toCharArray())) {
-//                document.close();
-//                return true;
-//            }
-//        }
         document.close();
         return false;
     }

@@ -48,13 +48,13 @@ You can run the main class in different ways:
    - Program arguments: <directory> <word>
 
 2) With the Maven Exec plugin (without adding it to the POM)
-   - mvn -q org.codehaus.mojo:exec-maven-plugin:3.5.0:java -Dexec.mainClass=pcd.ass_single.part1.virtual_threads.ExtractText -Dexec.args="<directory> <word>"
+   - mvn -q org.codehaus.mojo:exec-maven-plugin:3.5.0:java -Dexec.mainClass=pcd.ass_single.part1.virtual_threads.ExtractTextVirtualThreads -Dexec.args="<directory> <word>"
 
 3) Using java with a built classpath (Linux/macOS example)
    - First build: mvn -q -DskipTests package
    - Then run:
      java -cp "target/classes:$(mvn -q -DincludeScope=runtime -DskipTests org.apache.maven.plugins:maven-dependency-plugin:3.6.1:build-classpath -Dsilent | tail -n 1)" \
-       pcd.ass_single.part1.virtual_threads.ExtractText <directory> <word>
+       pcd.ass_single.part1.virtual_threads.ExtractTextVirtualThreads <directory> <word>
    - On Windows, replace ':' with ';' in the -cp argument and remove the command substitution.
 
 Expected output
