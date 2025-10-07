@@ -1,7 +1,12 @@
 package pcd.ass_single.part1;
 
+import pcd.ass_single.part1.example.BaseProgram;
 import pcd.ass_single.part1.thread.ExtractTextThread;
 import pcd.ass_single.part1.virtual_threads.ExtractTextVirtualThreads;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class StartTextExtraction {
 
@@ -13,15 +18,38 @@ public class StartTextExtraction {
         String directoryPath = args[0]; // first argument is the directory path
         String word = args[1]; // second argument is the word
 
-        ExtractText extractor = new ExtractTextThread();
+        ExtractText extractor = new ExtractTextVirtualThreads();
 
         try {
-            extractor.extractText(word, directoryPath);
+            extractor.extractText(collectPdfFiles(directoryPath), word);
         } catch ( Exception e ) {
             System.err.println(e.getMessage());
         }
 
     }
+
+    private static List<File> collectPdfFiles(String directoryPath) {
+        File directory = new File(directoryPath);
+
+        File[] files = directory.listFiles();
+
+        ArrayList<File> pdfs = new ArrayList<>();
+
+        if (files != null) {
+            for ( File file : files ) {
+                if ( file.isDirectory()) {
+                    pdfs.addAll(collectPdfFiles(file.getAbsolutePath()));
+                }
+                else if (file.isFile() && file.getName().endsWith(".pdf")) {
+                    pdfs.add(file);
+                }
+            }
+        }
+
+        return pdfs;
+
+    }
+
 
     private static void usage() {
         System.err.println("Usage: java " + pcd.ass_single.part1.example.BaseProgram.class.getName() + " <directory> <word>");

@@ -6,15 +6,16 @@ import org.apache.pdfbox.text.PDFTextStripper;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 public class Worker extends Thread {
     final private Monitor cell;
-    final private File[] files;
+    final private List<File>  files;
     final private int start;
     final private int end;
     final private String searchedWord;
 
-    public Worker(Monitor cell, int start, int end, File[] files, String word) {
+    public Worker(Monitor cell, int start, int end, List<File> files, String word) {
         super("getter");
         this.cell = cell;
         this.files = files;
@@ -26,16 +27,14 @@ public class Worker extends Thread {
     public void run(){
         int count = 0;
         for (int i = start; i < end; ++i) {
-            if (files[i].isFile() && files[i].getName().endsWith(".pdf")) {
-                System.out.println("File: " + files[i].getName());
+                System.out.println("File: " + files.get(i).getName());
                 try {
-                    if (containsWord(files[i], searchedWord)) {
+                    if (containsWord(files.get(i), searchedWord)) {
                         count += 1;
                     }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            }
         }
 
         System.out.println("files from [ " + start + "-" + end + "], which are: " + count);
@@ -59,14 +58,7 @@ public class Worker extends Thread {
             document.close();
             return true;
         }
-//
-//        for (int i = 0; i < text.length() - word.length() ; ++i) {
-//            char[] currWord = word.toCharArray();
-//            text.getChars(i, i + word.length(), currWord, 0);
-//            if (Arrays.equals(currWord, word.toCharArray())) {
-//
-//            }
-//        }
+
         document.close();
         return false;
     }

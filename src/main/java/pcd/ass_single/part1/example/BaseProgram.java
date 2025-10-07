@@ -3,27 +3,22 @@ package pcd.ass_single.part1.example;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.AccessPermission;
 import org.apache.pdfbox.text.PDFTextStripper;
+import pcd.ass_single.part1.ExtractText;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
-public class BaseProgram {
+public class BaseProgram implements ExtractText {
 
-    public static void main(String[] args) throws IOException {
-
-        if ( args.length != 2 ) {
-            usage();
-        }
+    @Override
+    public void extractText(List<File> files, String word) throws IOException {
 
         long startTime = System.currentTimeMillis();
 
         int count = 0;
 
-        String directoryPath = args[0]; // first argument is the directory path
-        String word = args[1]; // second argument is the word
-        File directory = new File(directoryPath);
 
-        File[] files = directory.listFiles();
         if (files != null) {
             for (File file : files) {
                 if (file.isFile() && file.getName().endsWith(".pdf")) {

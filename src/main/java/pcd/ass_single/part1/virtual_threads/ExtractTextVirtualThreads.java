@@ -7,6 +7,7 @@ import pcd.ass_single.part1.ExtractText;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.stream.IntStream;
 
@@ -14,16 +15,13 @@ import java.util.stream.IntStream;
 public class ExtractTextVirtualThreads implements ExtractText {
 
    @Override
-    public void extractText(String word, String directoryPath) throws Exception {
-        File directory = new File(directoryPath);
-
-        File[] files = directory.listFiles();
+    public void extractText(List<File> files, String word) throws Exception {
 
         Monitor m;
 
         if (files != null) {
             // i can decide the number of threads based on the number of files
-            int numFiles = files.length;
+            int numFiles = files.size();
             m = new Monitor(numFiles);
 
             Thread outputThread = Thread.ofVirtual().name("outputThread").unstarted(() -> {
@@ -41,7 +39,7 @@ public class ExtractTextVirtualThreads implements ExtractText {
                             .start(() -> {
                                 System.out.println("Hello from " + Thread.currentThread());
                                 try {
-                                    m.foundWord(containsWord(files[i], word));
+                                    m.foundWord(containsWord(files.get(i), word));
                                 } catch (IOException e) {
                                     m.foundWord(false);
                                 }

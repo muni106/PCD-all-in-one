@@ -4,11 +4,12 @@ import pcd.ass_single.part1.ExtractText;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 
 public class ExtractTextThread implements ExtractText {
     @Override
-    public void extractText(String word, String directoryPath) throws IOException {
+    public void extractText(List<File> files, String word) throws IOException {
 
         int Ncpu = Runtime.getRuntime().availableProcessors();
         long startTime = System.currentTimeMillis();
@@ -16,15 +17,11 @@ public class ExtractTextThread implements ExtractText {
         int Nthreads = Ncpu + 1;
 
 
-        File directory = new File(directoryPath);
-
-        File[] files = directory.listFiles();
-
         Monitor m;
 
         if (files != null) {
             // i can decide the number of threads based on the number of files
-            int numFiles = files.length;
+            int numFiles = files.size();
             m = new Monitor(numFiles);
 
             if (numFiles < Ncpu) {
