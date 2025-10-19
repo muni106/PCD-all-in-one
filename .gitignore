@@ -1,6 +1,6 @@
 # mac os stuff
 *.DS_Store
-
+.idea
 # Compiled class file
 *.class
 
