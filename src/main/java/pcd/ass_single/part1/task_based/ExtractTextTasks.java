@@ -1,56 +1,34 @@
 package pcd.ass_single.part1.task_based;
 
+import pcd.ass_single.part1.ExtractText;
+
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
-public class ExtractTextTasks {
+public class ExtractTextTasks implements ExtractText {
 
-    public static void main(String[] args) throws IOException {
-        if ( args.length != 2 ) {
-            usage();
-        }
+    @Override
+    public void extractText(List<File> files, String word) throws IOException {
         long startTime = System.currentTimeMillis();
         int Ncpu = Runtime.getRuntime().availableProcessors();
         // A system with Ncpu processors usually achieves optimum utilization with a thread pool of Ncpu + 1 threads
         int Nthreads = Ncpu + 1;
+        Integer count = 0;
 
-        String directoryPath = args[0]; // first argument is the directory path
-        String word = args[1]; // second argument is the word
-        File directory = new File(directoryPath);
+        if (files != null && !files.isEmpty()) {
+            Directory dir = Directory.fromDirectory(files.getFirst().getParentFile());
+            FileCounter fc = new FileCounter();
 
-        File[] files = directory.listFiles();
+            count = fc.countFilesInParallel(dir, word);
 
-        if (files != null) {
-            // i can decide the number of threads based on the number of files
-            int numFiles = files.length;
-
-            if (numFiles < Ncpu) {
-                Nthreads = numFiles;
-            }
-
-            TextExtractionService service = new TextExtractionService(Nthreads, files, word);
-
-            try {
-                int result = service.compute();
-                System.out.println(result);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            long duration = System.currentTimeMillis() - startTime;
-            System.out.println("elapsed time: " + duration);
-            System.exit(0);
+            System.out.println("The number of files with the word " + word + " is: " + count);
 
         }else {
             System.err.println("No files found");
-            System.exit(-1);
-
         }
     }
 
-    private static void usage() {
-        System.err.println("Usage: java " + pcd.ass_single.part1.example.BaseProgram.class.getName() + " <directory> <word>");
-        System.exit(-1);
-    }
 }
 
 

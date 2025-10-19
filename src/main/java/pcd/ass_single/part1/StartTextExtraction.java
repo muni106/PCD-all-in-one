@@ -1,6 +1,7 @@
 package pcd.ass_single.part1;
 
 import pcd.ass_single.part1.example.BaseProgram;
+import pcd.ass_single.part1.task_based.ExtractTextTasks;
 import pcd.ass_single.part1.thread.ExtractTextThread;
 import pcd.ass_single.part1.virtual_threads.ExtractTextVirtualThreads;
 
@@ -18,7 +19,7 @@ public class StartTextExtraction {
         String directoryPath = args[0]; // first argument is the directory path
         String word = args[1]; // second argument is the word
 
-        ExtractText extractor = new ExtractTextVirtualThreads();
+        ExtractText extractor = new ExtractTextTasks();
 
         try {
             extractor.extractText(collectPdfFiles(directoryPath), word);
