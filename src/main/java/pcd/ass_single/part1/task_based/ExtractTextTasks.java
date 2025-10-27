@@ -19,11 +19,8 @@ public class ExtractTextTasks implements ExtractText {
         if (files != null && !files.isEmpty()) {
             Directory dir = Directory.fromDirectory(files.getFirst().getParentFile());
             FileCounter fc = new FileCounter();
-
             count = fc.countFilesInParallel(dir, word);
-
             System.out.println("The number of files with the word " + word + " is: " + count);
-
         }else {
             System.err.println("No files found");
         }
