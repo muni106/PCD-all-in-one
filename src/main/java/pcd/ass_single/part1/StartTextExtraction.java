@@ -2,6 +2,7 @@ package pcd.ass_single.part1;
 
 import pcd.ass_single.part1.async_event.AsyncExtractText;
 import pcd.ass_single.part1.example.BaseProgram;
+import pcd.ass_single.part1.reactive_prog.ReactiveExtractText;
 import pcd.ass_single.part1.task_based.ExtractTextTasks;
 import pcd.ass_single.part1.thread.ExtractTextThread;
 import pcd.ass_single.part1.virtual_threads.ExtractTextVirtualThreads;
@@ -20,7 +21,7 @@ public class StartTextExtraction {
         String directoryPath = args[0]; // first argument is the directory path
         String word = args[1]; // second argument is the word
 
-        ExtractText extractor = new AsyncExtractText();
+        ExtractText extractor = new ReactiveExtractText();
 
         try {
             extractor.extractText(collectPdfFiles(directoryPath), word);
@@ -31,6 +32,7 @@ public class StartTextExtraction {
     }
 
     private static List<File> collectPdfFiles(String directoryPath) {
+        System.out.println("Extracting files from directory: " + directoryPath);
         File directory = new File(directoryPath);
 
         File[] files = directory.listFiles();
