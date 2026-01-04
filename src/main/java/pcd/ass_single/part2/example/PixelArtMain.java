@@ -12,9 +12,7 @@ public class PixelArtMain {
 	public static void main(String[] args) {
 		var brushManager = new BrushManager();
 		var localBrush = new BrushManager.Brush(0, 0, randomColor());
-		var fooBrush = new BrushManager.Brush(0, 0, randomColor());
 		brushManager.addBrush(localBrush);
-		brushManager.addBrush(fooBrush);
 		PixelGrid grid = new PixelGrid(40,40);
 
 		Random rand = new Random();
@@ -24,6 +22,9 @@ public class PixelArtMain {
 
 		PixelGridView view = new PixelGridView(grid, brushManager, 800, 800);
 
+
+        var fooBrush = new BrushManager.Brush(0, 0, randomColor());
+        brushManager.addBrush(fooBrush);
 		view.addMouseMovedListener((x, y) -> {
 			localBrush.updatePosition(x, y);
 			view.refresh();
