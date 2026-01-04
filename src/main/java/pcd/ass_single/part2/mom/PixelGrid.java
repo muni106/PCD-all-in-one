@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import scala.collection.generic.BitOperations;
 
 public class PixelGrid {
 	private final int nRows;
@@ -23,9 +24,21 @@ public class PixelGrid {
         nColumns = grid[0].length;
     }
 
+
     public String serializedGrid() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(grid);
+    }
+
+    public void setGrid(final String serializedGrid) throws JsonProcessingException {
+        int[][] newGrid = mapper.readValue(serializedGrid, int[][].class);
+        int rows = newGrid.length;
+        int cols = newGrid[0].length;
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+                set(c, r, newGrid[r][c]);
+            }
+        }
     }
 
 	public void clear() {
