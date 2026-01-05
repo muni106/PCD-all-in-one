@@ -6,11 +6,12 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class BrushManager implements Serializable {
     private static final int BRUSH_SIZE = 10;
     private static final int STROKE_SIZE = 2;
-    private Map<Integer, Brush> brushes = new HashMap<>();
+    private Map<Integer, Brush> brushes = new ConcurrentHashMap<>();
 
     void draw(final Graphics2D g) {
         brushes.forEach((id, brush) -> {
@@ -33,10 +34,24 @@ public class BrushManager implements Serializable {
     }
 
     public void updateBrushPosition(final Integer id, int x, int y) {
-        brushes.get(id).updatePosition(x, y);
+        Brush brush = brushes.get(id);
+        if ( brush != null ) {
+           synchronized (brush) {
+               brush.updatePosition(x, y);
+           }
+        }
     }
 
-    void removeBrush(final Integer id) {
+    public void updateBrushColor(final Integer id, int color) {
+        Brush brush = brushes.get(id);
+        if ( brush != null ) {
+            synchronized (brush) {
+                brush.setColor(color);
+            }
+        }
+    }
+
+    public void removeBrush(final Integer id) {
         brushes.remove(id);
     }
 

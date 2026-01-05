@@ -47,7 +47,7 @@ public class PixelGridView extends JFrame {
     }
     
     public void refresh(){
-        panel.repaint();
+       	SwingUtilities.invokeLater(panel::repaint);
     }
         
     public void display() {

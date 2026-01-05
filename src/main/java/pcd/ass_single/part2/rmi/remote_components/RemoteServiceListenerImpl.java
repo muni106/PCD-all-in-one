@@ -1,44 +1,41 @@
 package pcd.ass_single.part2.rmi.remote_components;
 
-import pcd.ass_single.part2.rmi.BrushManager;
+import pcd.ass_single.part2.rmi.BrushEventListener;
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
-import java.util.Map;
+import java.rmi.server.UnicastRemoteObject;
 
-public class RemoteServiceListenerImpl implements java.io.Serializable, RemoteServiceListener{
+public class RemoteServiceListenerImpl implements RemoteServiceListener{
+    private BrushEventListener brushListener;
 
-    private BrushManager myBrushManager;
-
-    public RemoteServiceListenerImpl(BrushManager brushManager) {
-        myBrushManager = brushManager;
+    public RemoteServiceListenerImpl(BrushEventListener listener) {
+       brushListener = listener;
     }
 
     @Override
-    public synchronized void addBrush(Integer id, int x, int y, int color)  throws RemoteException {
-        myBrushManager.addBrush(id, new BrushManager.Brush(x, y, color));
+    public synchronized void notifyBrushAdded(Integer id, int x, int y, int color) throws RemoteException {
+        brushListener.onBrushAdded(id, x, y, color);
     }
 
     @Override
-    public void changeBrushColor(Integer id, int color) throws RemoteException {
-
-
-    }
-
-    @Override
-    public synchronized void updateBrushPos(Integer id, int x, int y, int color) throws RemoteException {
-        if (myBrushManager.containsBrush(id))
-            myBrushManager.updateBrushPosition(id, x, y);
-        else
-            myBrushManager.addBrush(id, new BrushManager.Brush(x, y, color));
-    }
-
-    @Override
-    public void draw(int x, int y, int color) throws RemoteException {
+    public synchronized void notifyBrushColorChanged(Integer id, int color) throws RemoteException {
 
     }
 
     @Override
-    public void leave(Integer id) throws RemoteException {
+    public synchronized void notifyBrushMoved(Integer id, int x, int y, int color) throws RemoteException {
+        brushListener.onBrushMoved(id, x, y, color);
+
+    }
+
+    @Override
+    public synchronized void notifyPixelDrawn(int x, int y, int color) throws RemoteException {
+
+    }
+
+    @Override
+    public synchronized void notifyBrushRemoved(Integer id) throws RemoteException {
 
     }
 }

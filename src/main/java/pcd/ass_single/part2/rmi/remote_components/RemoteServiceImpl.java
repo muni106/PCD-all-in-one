@@ -1,6 +1,5 @@
 package pcd.ass_single.part2.rmi.remote_components;
 
-import pcd.ass_single.part2.rmi.BrushManager;
 import pcd.ass_single.part2.rmi.PixelGrid;
 
 import java.rmi.RemoteException;
@@ -21,12 +20,15 @@ public class RemoteServiceImpl implements RemoteService{
     @Override
     public synchronized Integer addPeer(RemoteServiceListener rsl, int x, int y, int color) throws RemoteException {
         Integer currListener = counter;
+
         listeners.forEach((id, listener) ->{
             if (!id.equals(currListener)) {
                 try {
-                    listener.addBrush(currListener, x, y, color);
+                    listener.notifyBrushAdded(currListener, x, y, color);
+
                 } catch (RemoteException e) {
-                    throw new RuntimeException(e);
+                    log("Peer " + id + " is disconnected, will be removed: " + e.getMessage());
+
                 }
             }
         });
@@ -45,10 +47,11 @@ public class RemoteServiceImpl implements RemoteService{
     public synchronized void updatePeers(Integer id, int x, int y, int color) throws RemoteException {
         listeners.forEach((peerId, listener) -> {
             if (!id.equals(peerId)) {
+                log(String.format("%d, updated pos in %d peers", id, peerId));
                 try {
-                    listener.updateBrushPos(id, x, y, color);
+                    listener.notifyBrushMoved(id, x, y, color);
                 } catch (RemoteException e) {
-                    throw new RuntimeException(e);
+                    log("peer disconnected!");
                 }
             }
         });

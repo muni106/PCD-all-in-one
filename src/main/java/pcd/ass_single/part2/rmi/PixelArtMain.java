@@ -5,7 +5,6 @@ import pcd.ass_single.part2.rmi.remote_components.RemoteServiceImpl;
 import pcd.ass_single.part2.rmi.remote_components.RemoteServiceListener;
 import pcd.ass_single.part2.rmi.remote_components.RemoteServiceListenerImpl;
 
-import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -46,14 +45,36 @@ public class PixelArtMain {
 		// CONFIG LOCAL BRUSHES
 		var brushManager = new BrushManager();
 		var localBrush = new BrushManager.Brush(0, 0, randomColor());
+		PixelGridView view = new PixelGridView(grid, brushManager, 800, 800);
+		BrushEventListener bel = new BrushEventListener() {
+			@Override
+			public void onBrushAdded(Integer id, int x, int y, int color) {
+				brushManager.addBrush(id, new BrushManager.Brush(x, y, color));
+			}
+
+			@Override
+			public void onBrushMoved(Integer id, int x, int y, int color) {
+				brushManager.updateBrushPosition(id, x, y);
+			}
+
+			@Override
+			public void onBrushColorChanged(Integer id, int color) {
+				brushManager.updateBrushColor(id, color);
+
+			}
+
+			@Override
+			public void onBrushRemoved(Integer id) {
+				brushManager.removeBrush(id);
+			}
+		};
 
 		// CONFIG LISTENER (pattern observer)
-        RemoteServiceListener rsl = new RemoteServiceListenerImpl(brushManager);
+
+        RemoteServiceListener rsl = new RemoteServiceListenerImpl(bel);
 		RemoteServiceListener rslProxy = (RemoteServiceListener) UnicastRemoteObject.exportObject(rsl, 0);
 
 		Integer peerId = rs.addPeer(rslProxy, localBrush.getX(), localBrush.getY(), localBrush.getColor());
-
-		PixelGridView view = new PixelGridView(grid, brushManager, 800, 800);
 
 		brushManager.addBrush(peerId, localBrush);
 
