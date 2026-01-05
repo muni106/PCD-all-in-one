@@ -1,7 +1,12 @@
 package pcd.ass_single.part2.rmi;
 
 import pcd.ass_single.part2.rmi.remote_components.RemoteService;
+import pcd.ass_single.part2.rmi.remote_components.RemoteServiceImpl;
+import pcd.ass_single.part2.rmi.remote_components.RemoteServiceListener;
+import pcd.ass_single.part2.rmi.remote_components.RemoteServiceListenerImpl;
 
+import java.rmi.AlreadyBoundException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -16,29 +21,39 @@ public class PixelArtMain {
 	}
 
 	public static void main(String[] args) throws RemoteException {
-        // rmi setup
-
-        String host = (args.length < 1) ? null : args[0];
-        Registry registry = LocateRegistry.getRegistry(host);
-
-
 		var brushManager = new BrushManager();
+		var fooBrush = new BrushManager.Brush(0, 0, randomColor());
 		var localBrush = new BrushManager.Brush(0, 0, randomColor());
 		brushManager.addBrush(localBrush);
-		PixelGrid grid = new PixelGrid(40,40);
 
 		//TODO fix that shit
-		// RemoteService remoteService = (RemoteService) UnicastRemoteObject.exportObject();
+		String host = (args.length < 1) ? null : args[0];
+		Registry registry = LocateRegistry.getRegistry(host);
 
-		Random rand = new Random();
-		for (int i = 0; i < 10; i++) {
-			grid.set(rand.nextInt(40), rand.nextInt(40), randomColor());
-		}
+		// verify if we have the Remote Service is up, otherwise create a new one
+		RemoteService rs;
+		try {
+			rs = (RemoteService) registry.lookup("rsObj");
+		} catch (NotBoundException e) {
+            log("remote service not found, let's create a new one");
+			PixelGrid newGrid = new PixelGrid(40,40);
+			Random rand = new Random();
+			for (int i = 0; i < 10; i++) {
+				newGrid.set(rand.nextInt(40), rand.nextInt(40), randomColor());
+			}
+			rs = new RemoteServiceImpl(newGrid);
+        }
+
+		PixelGrid grid = rs.getGrid();
+
+		RemoteService rsProxy = (RemoteService) UnicastRemoteObject.exportObject(rs, 0);
+		registry.rebind("rsObj", rsProxy);
+
+        RemoteServiceListener rsl = new RemoteServiceListenerImpl();
+		RemoteServiceListener rslProxy = (RemoteServiceListener) UnicastRemoteObject.exportObject(rsl, 0);
 
 		PixelGridView view = new PixelGridView(grid, brushManager, 800, 800);
 
-
-        var fooBrush = new BrushManager.Brush(0, 0, randomColor());
         brushManager.addBrush(fooBrush);
 		view.addMouseMovedListener((x, y) -> {
 			localBrush.updatePosition(x, y);
@@ -53,6 +68,11 @@ public class PixelArtMain {
 		view.addColorChangedListener(localBrush::setColor);
 
 		view.display();
+	}
+
+
+	private static void log(String msg) {
+		System.out.println(msg);
 	}
 
 }

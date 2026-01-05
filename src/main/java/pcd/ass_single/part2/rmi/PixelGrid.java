@@ -1,8 +1,9 @@
 package pcd.ass_single.part2.rmi;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
-public class PixelGrid {
+public class PixelGrid implements Serializable {
 	private final int nRows;
 	private final int nColumns;
 	private final int[][] grid;
