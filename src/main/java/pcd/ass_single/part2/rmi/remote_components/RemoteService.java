@@ -6,7 +6,8 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface RemoteService extends Remote {
-    void addListener(RemoteServiceListener rsl) throws RemoteException;
+    Integer addPeer(RemoteServiceListener rsl, int x, int y, int color) throws RemoteException;
     PixelGrid getGrid() throws RemoteException;
+    void updatePeers(Integer id, int x, int y, int color) throws RemoteException;
 }
 

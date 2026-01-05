@@ -21,16 +21,10 @@ public class PixelArtMain {
 	}
 
 	public static void main(String[] args) throws RemoteException {
-		var brushManager = new BrushManager();
-		var fooBrush = new BrushManager.Brush(0, 0, randomColor());
-		var localBrush = new BrushManager.Brush(0, 0, randomColor());
-		brushManager.addBrush(localBrush);
-
-		//TODO fix that shit
+		// REMOTE CONFIG
 		String host = (args.length < 1) ? null : args[0];
 		Registry registry = LocateRegistry.getRegistry(host);
 
-		// verify if we have the Remote Service is up, otherwise create a new one
 		RemoteService rs;
 		try {
 			rs = (RemoteService) registry.lookup("rsObj");
@@ -49,15 +43,30 @@ public class PixelArtMain {
 		RemoteService rsProxy = (RemoteService) UnicastRemoteObject.exportObject(rs, 0);
 		registry.rebind("rsObj", rsProxy);
 
-        RemoteServiceListener rsl = new RemoteServiceListenerImpl();
+		// CONFIG LOCAL BRUSHES
+		var brushManager = new BrushManager();
+		var localBrush = new BrushManager.Brush(0, 0, randomColor());
+
+		// CONFIG LISTENER (pattern observer)
+        RemoteServiceListener rsl = new RemoteServiceListenerImpl(brushManager);
 		RemoteServiceListener rslProxy = (RemoteServiceListener) UnicastRemoteObject.exportObject(rsl, 0);
+
+		Integer peerId = rs.addPeer(rslProxy, localBrush.getX(), localBrush.getY(), localBrush.getColor());
 
 		PixelGridView view = new PixelGridView(grid, brushManager, 800, 800);
 
-        brushManager.addBrush(fooBrush);
+		brushManager.addBrush(peerId, localBrush);
+
+		final RemoteService finalRs = rs;
+
 		view.addMouseMovedListener((x, y) -> {
 			localBrush.updatePosition(x, y);
-			view.refresh();
+            try {
+                finalRs.updatePeers(peerId, x, y, localBrush.getColor());
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
+            view.refresh();
 		});
 
 		view.addPixelGridEventListener((x, y) -> {
