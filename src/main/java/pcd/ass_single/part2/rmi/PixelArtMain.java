@@ -35,32 +35,44 @@ public class PixelArtMain {
 				newGrid.set(rand.nextInt(40), rand.nextInt(40), randomColor());
 			}
 			rs = new RemoteServiceImpl(newGrid);
+			RemoteService rsProxy = (RemoteService) UnicastRemoteObject.exportObject(rs, 0);
+			registry.rebind("rsObj", rsProxy);
+
+			log("service bound to registry");
         }
 
 		PixelGrid grid = rs.getGrid();
 
-		RemoteService rsProxy = (RemoteService) UnicastRemoteObject.exportObject(rs, 0);
-		registry.rebind("rsObj", rsProxy);
-
 		// CONFIG LOCAL BRUSHES
-		var brushManager = new BrushManager();
-		var localBrush = new BrushManager.Brush(0, 0, randomColor());
+		BrushManager brushManager = new BrushManager();
+		BrushManager.Brush localBrush = new BrushManager.Brush(0, 0, randomColor());
 		PixelGridView view = new PixelGridView(grid, brushManager, 800, 800);
-		BrushEventListener bel = new BrushEventListener() {
+
+		// CONFIG REMOTE EVENT LISTENER (pattern observer)
+		RemoteEventListener bel = new RemoteEventListener() {
 			@Override
-			public void onBrushAdded(Integer id, int x, int y, int color) {
-				brushManager.addBrush(id, new BrushManager.Brush(x, y, color));
+			public void onBrushAdded(BrushDTO brushDTO) {
+				brushManager.addBrush(brushDTO.getPeerId(), new BrushManager.Brush(brushDTO.getX(), brushDTO.getY(), brushDTO.getColor()));
 			}
 
 			@Override
-			public void onBrushMoved(Integer id, int x, int y, int color) {
-				brushManager.updateBrushPosition(id, x, y);
+			public void onBrushMoved(BrushDTO brushDTO) {
+				if (brushManager.containsBrush(brushDTO.getPeerId())) {
+					brushManager.updateBrushPosition(brushDTO.getPeerId(), brushDTO.getX(), brushDTO.getY());
+				} else {
+					brushManager.addBrush(brushDTO.getPeerId(), new BrushManager.Brush(brushDTO.getX(), brushDTO.getY(), brushDTO.getColor()));
+				}
+				view.refresh();
 			}
 
 			@Override
-			public void onBrushColorChanged(Integer id, int color) {
-				brushManager.updateBrushColor(id, color);
+			public void onBrushColorChanged(BrushDTO brushDTO) {
+				brushManager.updateBrushColor(brushDTO.getPeerId(), brushDTO.getColor());
+			}
 
+			@Override
+			public void onPixelDrawn(BrushDTO brushDTO) {
+				grid.set(brushDTO.getX(), brushDTO.getY(), brushDTO.getColor());
 			}
 
 			@Override
@@ -69,12 +81,14 @@ public class PixelArtMain {
 			}
 		};
 
-		// CONFIG LISTENER (pattern observer)
 
+		// CONFIG LEADER LISTENER
         RemoteServiceListener rsl = new RemoteServiceListenerImpl(bel);
 		RemoteServiceListener rslProxy = (RemoteServiceListener) UnicastRemoteObject.exportObject(rsl, 0);
 
-		Integer peerId = rs.addPeer(rslProxy, localBrush.getX(), localBrush.getY(), localBrush.getColor());
+		Integer peerId = rs.join(rslProxy);
+
+		dispatchEvent(rs, EventType.ADD, peerId, localBrush);
 
 		brushManager.addBrush(peerId, localBrush);
 
@@ -83,9 +97,9 @@ public class PixelArtMain {
 		view.addMouseMovedListener((x, y) -> {
 			localBrush.updatePosition(x, y);
             try {
-                finalRs.updatePeers(peerId, x, y, localBrush.getColor());
+                dispatchEvent(finalRs, EventType.MOVE, peerId, localBrush);
             } catch (RemoteException e) {
-                throw new RuntimeException(e);
+                log("Something went wrong in addMouseMovedLister");
             }
             view.refresh();
 		});
@@ -100,6 +114,9 @@ public class PixelArtMain {
 		view.display();
 	}
 
+	private static void dispatchEvent(RemoteService rs, EventType eventType, Integer peerId, BrushManager.Brush brush) throws RemoteException {
+		rs.handleEvent(new RemoteEvent(eventType, new BrushDTO(peerId, brush.getX(), brush.getY(), brush.getColor())));
+	}
 
 	private static void log(String msg) {
 		System.out.println(msg);

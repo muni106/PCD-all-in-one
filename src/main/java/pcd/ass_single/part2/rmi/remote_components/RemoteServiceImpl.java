@@ -1,41 +1,74 @@
 package pcd.ass_single.part2.rmi.remote_components;
 
 import pcd.ass_single.part2.rmi.PixelGrid;
+import pcd.ass_single.part2.rmi.RemoteEvent;
 
 import java.rmi.RemoteException;
 import java.util.*;
 
 public class RemoteServiceImpl implements RemoteService{
 
-    private Map<Integer, RemoteServiceListener> listeners;
+    private final Map<Integer, RemoteServiceListener> listenersMap;
+    private final Queue<RemoteEvent> remoteEventQueue = new ArrayDeque<>();
     private PixelGrid grid;
-    private Integer counter;
+    private Integer idCounter;
 
-    public RemoteServiceImpl(PixelGrid newGrid) {
-        grid = newGrid;
-        listeners = new HashMap<>();
-        counter = 0;
+    public RemoteServiceImpl(PixelGrid grid) {
+        this.grid = grid;
+        this.listenersMap = new HashMap<>();
+        this.idCounter = 0;
     }
 
     @Override
-    public synchronized Integer addPeer(RemoteServiceListener rsl, int x, int y, int color) throws RemoteException {
-        Integer currListener = counter;
+    public synchronized void handleEvent(RemoteEvent event) throws RemoteException {
+        remoteEventQueue.add(event);
+        processQueue();
+    }
 
-        listeners.forEach((id, listener) ->{
-            if (!id.equals(currListener)) {
-                try {
-                    listener.notifyBrushAdded(currListener, x, y, color);
+    private synchronized void processQueue() throws RemoteException {
+        while (!remoteEventQueue.isEmpty()) {
+            RemoteEvent event = remoteEventQueue.poll();
+            broadcastEvent(event);
+        }
+    }
 
-                } catch (RemoteException e) {
-                    log("Peer " + id + " is disconnected, will be removed: " + e.getMessage());
-
+    private synchronized void broadcastEvent(RemoteEvent event) {
+        listenersMap.forEach((listenerId, listener) -> {
+            try{
+                switch (event.getEventType()) {
+                    case ADD:
+                        listener.notifyBrushAdded(event.getBrushDTO());
+                        break;
+                    case MOVE:
+                        listener.notifyBrushMoved(event.getBrushDTO());
+                        break;
+                    case DRAW:
+                        listener.notifyPixelDrawn(event.getBrushDTO());
+                        break;
+                    default:
+                        log("Wrong event");
+                        break;
                 }
+
+            } catch (RemoteException e) {
+                log("PEER: " + event.getBrushDTO().getPeerId() + " EVENT: " + event.getEventType().toString() + " WENT WRONG!");
             }
         });
-        counter += 1;
-        listeners.put(currListener, rsl);
+
+    }
+
+    @Override
+    public synchronized Integer join(RemoteServiceListener rsl) throws RemoteException {
+        Integer newPeerId = idCounter;
+        idCounter += 1;
+        listenersMap.put(newPeerId, rsl);
         log("Added Listener");
-        return currListener;
+        return newPeerId;
+    }
+
+    @Override
+    public synchronized void setGrid(PixelGrid grid) throws RemoteException {
+        this.grid = grid;
     }
 
     @Override
@@ -43,19 +76,6 @@ public class RemoteServiceImpl implements RemoteService{
         return grid;
     }
 
-    @Override
-    public synchronized void updatePeers(Integer id, int x, int y, int color) throws RemoteException {
-        listeners.forEach((peerId, listener) -> {
-            if (!id.equals(peerId)) {
-                log(String.format("%d, updated pos in %d peers", id, peerId));
-                try {
-                    listener.notifyBrushMoved(id, x, y, color);
-                } catch (RemoteException e) {
-                    log("peer disconnected!");
-                }
-            }
-        });
-    }
 
     private static void log(String msg) {
         System.out.println(msg);
