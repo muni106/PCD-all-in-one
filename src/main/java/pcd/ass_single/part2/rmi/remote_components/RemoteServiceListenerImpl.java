@@ -4,6 +4,7 @@ import pcd.ass_single.part2.rmi.BrushDTO;
 import pcd.ass_single.part2.rmi.RemoteEventListener;
 
 import java.rmi.RemoteException;
+import java.util.Map;
 
 public class RemoteServiceListenerImpl implements RemoteServiceListener{
     private RemoteEventListener brushListener;
@@ -35,5 +36,10 @@ public class RemoteServiceListenerImpl implements RemoteServiceListener{
     @Override
     public synchronized void notifyBrushRemoved(Integer id) throws RemoteException {
         brushListener.onBrushRemoved(id);
+    }
+
+    @Override
+    public void notifyNextLeader(Integer leaderId, Map<Integer, RemoteServiceListener> listenersMap) throws RemoteException {
+        brushListener.onNextLeaderElection(leaderId, listenersMap);
     }
 }

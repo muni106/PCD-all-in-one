@@ -1,7 +1,5 @@
 package pcd.ass_single.part2.rmi;
 
-import pcd.ass_single.part2.rmi.remote_components.RemoteServiceListener;
-
 import java.io.Serializable;
 
 public class RemoteEvent implements Serializable {
