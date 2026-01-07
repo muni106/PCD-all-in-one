@@ -44,6 +44,17 @@ public class RemoteServiceImpl implements RemoteService{
     private synchronized void processQueue() throws RemoteException {
         while (!remoteEventQueue.isEmpty()) {
             RemoteEvent event = remoteEventQueue.poll();
+
+            if (event.getEventType().equals(EventType.LEAVE)) {
+                listenersMap.remove(event.getBrushDTO().getPeerId());
+                if (event.getBrushDTO().getPeerId().equals(leaderId)) {
+                    try {
+                        leaderLeft();
+                    } catch (RemoteException e) {
+                        log("Problems with leader election in REMOTE SERVICE ");
+                    }
+                }
+            }
             informLeader(event);
             broadcastEvent(event);
         }
@@ -105,18 +116,8 @@ public class RemoteServiceImpl implements RemoteService{
                     log(e.getMessage());
                     // throw new RuntimeException(e);
                 }
-
-                if (event.getEventType().equals(EventType.LEAVE)) {
-                    listenersMap.remove(event.getBrushDTO().getPeerId());
-                    if (event.getBrushDTO().getPeerId().equals(leaderId)) {
-                        try {
-                            leaderLeft();
-                        } catch (RemoteException e) {
-                            log("Problems with leader election REMOTE SERVICE IMPL");
-                        }
-                    }
-                }
         });
+
     }
 
     private void leaderLeft() throws RemoteException {
