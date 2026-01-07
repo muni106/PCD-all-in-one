@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class BrushManager implements Serializable {
     private static final int BRUSH_SIZE = 10;
     private static final int STROKE_SIZE = 2;
-    private Map<Integer, Brush> brushes = new ConcurrentHashMap<>();
+    private final Map<Integer, Brush> brushes = new ConcurrentHashMap<>();
 
     void draw(final Graphics2D g) {
         brushes.forEach((id, brush) -> {
@@ -49,6 +49,16 @@ public class BrushManager implements Serializable {
                 brush.setColor(color);
             }
         }
+    }
+
+    public BrushDTO getBrushDTOWithUpdatedPos(final Integer id, int x, int y) {
+        return new BrushDTO(id, x, y, brushes.get(id).getColor());
+    }
+    public BrushDTO getBrushDTOWithUpdatedColor(final Integer id, int color) {
+        return new BrushDTO(id, brushes.get(id).getX(), brushes.get(id).getY(), color);
+    }
+    public BrushDTO getBrushDTO(final Integer id) {
+        return new BrushDTO(id, brushes.get(id).getX(), brushes.get(id).getY(), brushes.get(id).getColor());
     }
 
     public void removeBrush(final Integer id) {

@@ -1,15 +1,15 @@
 package pcd.ass_single.part2.rmi.remote_components;
 
 import pcd.ass_single.part2.rmi.BrushDTO;
-import pcd.ass_single.part2.rmi.RemoteEventListener;
+import pcd.ass_single.part2.rmi.RemoteEventHandler;
 
 import java.rmi.RemoteException;
 import java.util.Map;
 
 public class RemoteServiceListenerImpl implements RemoteServiceListener{
-    private RemoteEventListener brushListener;
+    private final RemoteEventHandler brushListener;
 
-    public RemoteServiceListenerImpl(RemoteEventListener listener) {
+    public RemoteServiceListenerImpl(RemoteEventHandler listener) {
        brushListener = listener;
     }
 

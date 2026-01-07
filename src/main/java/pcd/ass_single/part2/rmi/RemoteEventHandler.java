@@ -4,7 +4,7 @@ import pcd.ass_single.part2.rmi.remote_components.RemoteServiceListener;
 
 import java.util.Map;
 
-public interface RemoteEventListener {
+public interface RemoteEventHandler {
     void onBrushAdded(BrushDTO brushDTO);
     void onBrushMoved(BrushDTO brushDTO);
     void onBrushColorChanged(BrushDTO brushDTO);

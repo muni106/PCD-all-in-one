@@ -14,166 +14,160 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 
+import static java.rmi.server.LogStream.log;
+
 public class PixelArtMain {
 	private static Integer peerId;
 	private static RemoteService rsRef;
+	private static boolean leaderAvailable;
 
 	public static int randomColor() {
 		Random rand = new Random();
 		return rand.nextInt(256 * 256 * 256);
 	}
 
-	public static void main(String[] args) throws RemoteException {
+	public static void main(String[] args) throws RemoteException, InterruptedException {
 		// REMOTE CONFIG
 		String host = (args.length < 1) ? null : args[0];
 		Registry registry = LocateRegistry.getRegistry(host);
+
+		// LOCAL CONFIG
+		boolean iAmLeader = false;
+		BrushManager brushManager = new BrushManager();
+		BrushManager.Brush localBrush = new BrushManager.Brush(0, 0, randomColor());
+		PixelGrid grid = null;
+		PixelGridView view = null;
 
 		try {
 			rsRef = (RemoteService) registry.lookup("rsObj");
 		} catch (NotBoundException e) {
             log("remote service not found, let's create a new one");
-			PixelGrid newGrid = new PixelGrid(40,40);
+
+			grid = new PixelGrid(40,40);
+			view = new PixelGridView(grid, brushManager, 800, 800);
 			Random rand = new Random();
 			for (int i = 0; i < 10; i++) {
-				newGrid.set(rand.nextInt(40), rand.nextInt(40), randomColor());
+				grid.set(rand.nextInt(40), rand.nextInt(40), randomColor());
 			}
-			rsRef = new RemoteServiceImpl(0, newGrid);
+			peerId = 0;
+			brushManager.addBrush(peerId, localBrush);
+			iAmLeader = true;
+			RemoteEventHandler leaderRemoteEventHandler = new AbstractRemoteEventHandler(brushManager, view, grid) {
+				@Override
+				public void onNextLeaderElection(Integer leaderId, Map<Integer, RemoteServiceListener> listenersMap) {
+					log("goodbye my fellas");
+				}
+			};
+			rsRef = new RemoteServiceImpl(peerId, grid, leaderRemoteEventHandler);
+			leaderAvailable = true;
 			RemoteService rsProxy = (RemoteService) UnicastRemoteObject.exportObject(rsRef, 0);
 			registry.rebind("rsObj", rsProxy);
 
 			log("service bound to registry");
+			log("I'm the leader");
         }
 
-		final PixelGrid grid = rsRef.getGrid();
+		if (grid == null) {
+			grid = rsRef.getGrid();
+		}
+		if (view == null) {
+			view = new PixelGridView(grid, brushManager, 800, 800);
+		}
 
-		// CONFIG LOCAL BRUSHES
-		BrushManager brushManager = new BrushManager();
-		BrushManager.Brush localBrush = new BrushManager.Brush(0, 0, randomColor());
-		PixelGridView view = new PixelGridView(grid, brushManager, 800, 800);
+		if (!leaderAvailable) {
+			// CONFIG REMOTE EVENT LISTENER (pattern observer)
+			log("Im a peer");
+			RemoteEventHandler peerRemoteEventHandler = new AbstractRemoteEventHandler(brushManager, view, grid) {
+				@Override
+				public void onNextLeaderElection(Integer leaderId, Map<Integer, RemoteServiceListener> listenersMap) {
+					leaderAvailable = false;
+					if (Objects.equals(peerId, leaderId)) {
 
-
-		// CONFIG REMOTE EVENT LISTENER (pattern observer)
-		RemoteEventListener bel = new RemoteEventListener() {
-			@Override
-			public void onBrushAdded(BrushDTO brushDTO) {
-				brushManager.addBrush(brushDTO.getPeerId(), new BrushManager.Brush(brushDTO.getX(), brushDTO.getY(), brushDTO.getColor()));
-			}
-
-			@Override
-			public void onBrushMoved(BrushDTO brushDTO) {
-				if (brushManager.containsBrush(brushDTO.getPeerId())) {
-					brushManager.updateBrushPosition(brushDTO.getPeerId(), brushDTO.getX(), brushDTO.getY());
-				} else {
-					brushManager.addBrush(brushDTO.getPeerId(), new BrushManager.Brush(brushDTO.getX(), brushDTO.getY(), brushDTO.getColor()));
-				}
-				view.refresh();
-			}
-
-			@Override
-			public void onBrushColorChanged(BrushDTO brushDTO) {
-				brushManager.updateBrushColor(brushDTO.getPeerId(), brushDTO.getColor());
-			}
-
-			@Override
-			public void onPixelDrawn(BrushDTO brushDTO) {
-				grid.set(brushDTO.getX(), brushDTO.getY(), brushDTO.getColor());
-			}
-
-			@Override
-			public void onBrushRemoved(Integer id) {
-				brushManager.removeBrush(id);
-			}
-
-			@Override
-			public void onNextLeaderElection(Integer leaderId, Map<Integer, RemoteServiceListener> listenersMap) {
-				if (Objects.equals(peerId, leaderId)) {
-					rsRef = new RemoteServiceImpl(leaderId, grid, listenersMap);
-					try {
-						RemoteService newRsProxy = (RemoteService) UnicastRemoteObject.exportObject(rsRef, 0);
-						registry.rebind("rsObj", newRsProxy);
-					} catch (RemoteException e) {
-						log("failed on leader Election remote service binding");
-					}
-				} else {
-					new Thread(() -> {
-						boolean connected = false;
-						while (!connected) {
-							try {
-								rsRef = (RemoteService) registry.lookup("rsObj");
-								connected = true;
-								log("connected successfully to new leader");
-							} catch (RemoteException | NotBoundException e) {
-								log("not found yet");
-								try {
-									Thread.sleep(1000);
-								} catch (InterruptedException ex) {
-									throw new RuntimeException(ex);
-								}
+						RemoteEventHandler leaderRemoteEventHandler = new AbstractRemoteEventHandler(brushManager, view, grid) {
+							@Override
+							public void onNextLeaderElection(Integer leaderId, Map<Integer, RemoteServiceListener> listenersMap) {
+								log("goodbye my fellas");
 							}
+						};
+
+						rsRef = new RemoteServiceImpl(leaderId, grid, listenersMap, leaderRemoteEventHandler);
+						leaderAvailable = true;
+
+						try {
+							RemoteService newRsProxy = (RemoteService) UnicastRemoteObject.exportObject(rsRef, 0);
+							registry.rebind("rsObj", newRsProxy);
+						} catch (RemoteException e) {
+							log("failed on leader Election remote service binding");
 						}
 
-					});
-                }
+					} else {
+						new Thread(() -> {
+							boolean connected = false;
+							while (!connected) {
+								try {
+									rsRef = (RemoteService) registry.lookup("rsObj");
+									connected = true;
+									log("connected successfully to new leader");
+									leaderAvailable = true;
+								} catch (RemoteException | NotBoundException e) {
+									log("not found yet");
+									try {
+										Thread.sleep(1000);
+									} catch (InterruptedException ex) {
+										throw new RuntimeException(ex);
+									}
+								}
+							}
 
-			}
-		};
+						}).start();
+					}
 
-		// CONFIG LEADER LISTENER
-        RemoteServiceListener rsl = new RemoteServiceListenerImpl(bel);
-		RemoteServiceListener rslProxy = (RemoteServiceListener) UnicastRemoteObject.exportObject(rsl, 0);
+				}
+			};
+			RemoteServiceListener rsl = new RemoteServiceListenerImpl(peerRemoteEventHandler );
+			RemoteServiceListener rslProxy = (RemoteServiceListener) UnicastRemoteObject.exportObject(rsl, 0);
 
-		peerId = rsRef.join(rslProxy);
-
-		dispatchEvent(rsRef, EventType.ADD, peerId, localBrush);
-
-		brushManager.addBrush(peerId, localBrush);
-
+			peerId = rsRef.join(rslProxy);
+			brushManager.addBrush(peerId, localBrush);
+			leaderAvailable = true;
+			dispatchEvent(rsRef, EventType.ADD, brushManager.getBrushDTO(peerId));
+		}
 
 		view.addMouseMovedListener((x, y) -> {
-			localBrush.updatePosition(x, y);
-            try {
-                dispatchEvent(rsRef, EventType.MOVE, peerId, localBrush);
-            } catch (RemoteException e) {
-                // log("Something went wrong in [addMouseMovedLister]");
-            }
-            view.refresh();
+			dispatchEvent(rsRef, EventType.MOVE, brushManager.getBrushDTOWithUpdatedPos(peerId, x, y));
+//            view.refresh();
 		});
 
 		view.addPixelGridEventListener((x, y) -> {
-			grid.set(x, y, localBrush.getColor());
-            try {
-                dispatchEvent(rsRef, EventType.DRAW, peerId, localBrush);
-            } catch (RemoteException e) {
-				log("Something went wrong in [addPixelGridEventListener]");
-            }
-            view.refresh();
+//			grid.set(x, y, localBrush.getColor());
+			dispatchEvent(rsRef, EventType.DRAW, brushManager.getBrushDTO(peerId));
+//            view.refresh();
 		});
 
 		view.addColorChangedListener((color) -> {
-			localBrush.setColor(color);
-            try {
-                dispatchEvent(rsRef, EventType.COLOR_CHANGE, peerId, localBrush);
-            } catch (RemoteException e) {
-				log("Something went wrong in [addColorChangedListener]");
-            }
-			view.refresh();
+//			localBrush.setColor(color);
+			dispatchEvent(rsRef, EventType.COLOR_CHANGE, brushManager.getBrushDTOWithUpdatedColor(peerId, color));
+//			view.refresh();
         });
 
 
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                dispatchEvent(rsRef, EventType.LEAVE, peerId, localBrush);
-            } catch (RemoteException e) {
-				log("Something went wrong in [Leaving]");
-            }
-        }));
 
 		view.display();
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			dispatchEvent(rsRef, EventType.LEAVE, brushManager.getBrushDTO(peerId));
+		}));
+
 	}
 
-	private static void dispatchEvent(RemoteService rs, EventType eventType, Integer peerId, BrushManager.Brush brush) throws RemoteException {
-		rs.handleEvent(new RemoteEvent(eventType, new BrushDTO(peerId, brush.getX(), brush.getY(), brush.getColor())));
-	}
+	private static void dispatchEvent(RemoteService rs, EventType eventType, BrushDTO brush) {
+		if (leaderAvailable) {
+			try {
+				rs.handleEvent(new RemoteEvent(eventType, brush));
+			} catch (RemoteException e) {
+				log("Something went wrong while: " + eventType.toString() );
+			}
+		}
+    }
 
 	private static void log(String msg) {
 		System.out.println(msg);
