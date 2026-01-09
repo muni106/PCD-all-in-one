@@ -29,7 +29,6 @@ public class StartTextExtraction {
         } catch ( Exception e ) {
             System.err.println(e.getMessage());
         }
-
     }
 
     private static List<File> collectPdfFiles(String directoryPath) {
@@ -50,9 +49,7 @@ public class StartTextExtraction {
                 }
             }
         }
-
         return pdfs;
-
     }
 
 

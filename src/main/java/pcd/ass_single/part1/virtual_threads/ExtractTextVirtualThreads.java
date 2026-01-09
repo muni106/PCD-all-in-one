@@ -4,6 +4,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.AccessPermission;
 import org.apache.pdfbox.text.PDFTextStripper;
 import pcd.ass_single.part1.ExtractText;
+import pcd.ass_single.part1.ExtractionModel;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,14 +16,14 @@ import java.util.stream.IntStream;
 public class ExtractTextVirtualThreads implements ExtractText {
 
    @Override
-    public void extractText(List<File> files, String word) throws Exception {
+    public void extractText(List<File> files, String word, ExtractionModel model) throws Exception {
 
         Monitor m;
 
         if (files != null) {
             // i can decide the number of threads based on the number of files
             int numFiles = files.size();
-            m = new Monitor(numFiles);
+            m = new Monitor(numFiles, model);
 
             Thread outputThread = Thread.ofVirtual().name("outputThread").unstarted(() -> {
                 int value = m.get();

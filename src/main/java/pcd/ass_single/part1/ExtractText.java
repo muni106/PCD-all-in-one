@@ -4,5 +4,5 @@ import java.io.File;
 import java.util.List;
 
 public interface ExtractText {
-    void extractText(List<File> pdfs, String word) throws Exception;
+    void extractText(List<File> pdfs, String word, ExtractionModel model) throws Exception;
 }
