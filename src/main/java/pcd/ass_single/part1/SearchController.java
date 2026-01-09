@@ -1,11 +1,13 @@
 package pcd.ass_single.part1;
 
 
-public class ExtractionController {
-    private ExtractionModel model;
+import pcd.ass_single.part1.events.ExtractionEvent;
+
+public class SearchController {
+    private SearchModel model;
     private boolean started;
 
-    public ExtractionController(ExtractionModel model) {
+    public SearchController(SearchModel model) {
         this.model = model;
         this.started = false;
     }

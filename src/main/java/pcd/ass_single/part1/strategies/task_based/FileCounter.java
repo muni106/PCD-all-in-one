@@ -30,9 +30,9 @@ public class FileCounter {
         return 0;
     }
 
-    public Integer countFilesInParallel(Directory dir, String searchedWord) throws IOException {
+    public Integer countFilesInParallel(DirectoryTree dir, String searchedWord) throws IOException {
         try {
-            return forkJoinPool.invoke(new DirectoryScrapeTask(this, dir, searchedWord));
+            return forkJoinPool.invoke(new DirectoryScanTask(this, dir, searchedWord));
         } finally {
             forkJoinPool.shutdown();        // orderly shutdown
             // forkJoinPool.shutdownNow();  // or immediate shutdown

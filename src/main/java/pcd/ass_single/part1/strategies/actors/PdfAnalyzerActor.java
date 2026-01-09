@@ -9,7 +9,7 @@ import org.apache.pdfbox.text.PDFTextStripper;
 import java.io.File;
 import java.io.IOException;
 
-class PdfAnalyzer extends AbstractActor {
+class PdfAnalyzerActor extends AbstractActor {
     static class GetCount {}
 
     static class PdfWordMessage {

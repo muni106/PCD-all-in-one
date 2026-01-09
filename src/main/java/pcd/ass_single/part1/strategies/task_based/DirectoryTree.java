@@ -6,16 +6,16 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Directory {
-    private final List<Directory> subDirectories;
+public class DirectoryTree {
+    private final List<DirectoryTree> subDirectories;
     private final List<File> pdfs;
 
-    public Directory(List<Directory> subDirectories, List<File> pdfs) {
+    public DirectoryTree(List<DirectoryTree> subDirectories, List<File> pdfs) {
         this.subDirectories = subDirectories;
         this.pdfs = pdfs;
     }
 
-    public List<Directory> getSubDirectories() {
+    public List<DirectoryTree> getSubDirectories() {
         return this.subDirectories;
     }
 
@@ -23,16 +23,16 @@ public class Directory {
         return this.pdfs;
     }
 
-    public static Directory fromDirectory(File dir) throws IOException {
+    public static DirectoryTree fromDirectory(File dir) throws IOException {
         List<File> pdfs = new LinkedList<File>();
-        List<Directory> subDirectories = new LinkedList<Directory>();
+        List<DirectoryTree> subDirectories = new LinkedList<DirectoryTree>();
         for (File entry : dir.listFiles()) {
             if (entry.isDirectory()) {
-                subDirectories.add(Directory.fromDirectory(entry));
+                subDirectories.add(DirectoryTree.fromDirectory(entry));
             } else if (entry.getName().endsWith("pdf")){
                 pdfs.add(entry);
             }
         }
-        return new Directory(subDirectories, pdfs);
+        return new DirectoryTree(subDirectories, pdfs);
     }
 }

@@ -1,12 +1,12 @@
 package pcd.ass_single.part1;
 
-public class StartTextExtraction {
+public class PdfSearchApp {
 
     public static void main(String[] args) {
 
-        ExtractionModel model = new ExtractionModel();
-        ExtractionController controller = new ExtractionController(model);
-        ExtractionView view = new ExtractionView(controller);
+        SearchModel model = new SearchModel();
+        SearchController controller = new SearchController(model);
+        SearchView view = new SearchView(controller);
 
         model.addObserver(view);
         view.setVisible(true);

@@ -1,6 +1,9 @@
 package pcd.ass_single.part1;
 
 
+import pcd.ass_single.part1.events.ExtractionEvent;
+import pcd.ass_single.part1.events.ExtractionEventType;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -8,15 +11,15 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public class ExtractionView extends JFrame implements ActionListener, ModelObserver {
+public class SearchView extends JFrame implements ActionListener, ModelObserver {
     private JTextField directoryPathField;
     private JTextField searchWordField;
     private JTextField countFiles;
     private JTextField countPdfFiles;
     private JTextField countPdfFilesWithWord;
-    private final ExtractionController controller;
+    private final SearchController controller;
 
-    public ExtractionView(ExtractionController controller) {
+    public SearchView(SearchController controller) {
         this.controller = controller;
 
         setSize(1000, 300);
@@ -83,7 +86,7 @@ public class ExtractionView extends JFrame implements ActionListener, ModelObser
     }
 
     @Override
-    public void modelUpdated(ExtractionModel model) {
+    public void modelUpdated(SearchModel model) {
         SwingUtilities.invokeLater(() -> {
             countFiles.setText("num files: " + model.getCountFiles());
             countPdfFiles.setText("num pdf files: " + model.getCountPdfFiles());

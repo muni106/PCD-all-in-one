@@ -4,8 +4,8 @@ import io.vertx.core.*;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.AccessPermission;
 import org.apache.pdfbox.text.PDFTextStripper;
-import pcd.ass_single.part1.ExtractText;
-import pcd.ass_single.part1.ExtractionModel;
+import pcd.ass_single.part1.strategies.PdfWordSearcher;
+import pcd.ass_single.part1.SearchModel;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,11 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-class MyVerticle extends AbstractVerticle {
+class PdfSearchVerticle extends AbstractVerticle {
     private final List<File> pdfs;
     private final String searchedWord;
 
-    MyVerticle(List<File> pdfs, String searchedWord) {
+    PdfSearchVerticle(List<File> pdfs, String searchedWord) {
         this.pdfs = pdfs;
         this.searchedWord = searchedWord;
     }
@@ -71,14 +71,14 @@ class MyVerticle extends AbstractVerticle {
 }
 
 
-public class AsyncExtractText implements ExtractText {
+public class VertxAsyncSearcher implements PdfWordSearcher {
     // TODO fix model logic
     @Override
-    public void extractText(List<File> pdfs, String word, ExtractionModel model) throws Exception {
+    public void extractText(List<File> pdfs, String word, SearchModel model) throws Exception {
 
         int workerPoolSize = Runtime.getRuntime().availableProcessors();
         VertxOptions options = new VertxOptions().setWorkerPoolSize(workerPoolSize);
         Vertx vertx = Vertx.vertx(options);
-        vertx.deployVerticle(new MyVerticle(pdfs, word));
+        vertx.deployVerticle(new PdfSearchVerticle(pdfs, word));
     }
 }

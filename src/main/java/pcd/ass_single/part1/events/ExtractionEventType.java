@@ -1,4 +1,4 @@
-package pcd.ass_single.part1;
+package pcd.ass_single.part1.events;
 
 public enum ExtractionEventType {
     START,

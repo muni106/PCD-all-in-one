@@ -1,17 +1,17 @@
 package pcd.ass_single.part1.strategies.thread;
 
-import pcd.ass_single.part1.ExtractText;
-import pcd.ass_single.part1.ExtractionModel;
+import pcd.ass_single.part1.strategies.PdfWordSearcher;
+import pcd.ass_single.part1.SearchModel;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 
-public class ExtractTextThread implements ExtractText {
+public class ThreadPoolSearch implements PdfWordSearcher {
     // TODO fix model logic
     @Override
-    public void extractText(List<File> files, String word, ExtractionModel model) throws IOException {
+    public void extractText(List<File> files, String word, SearchModel model) throws IOException {
 
         int Ncpu = Runtime.getRuntime().availableProcessors();
         long startTime = System.currentTimeMillis();

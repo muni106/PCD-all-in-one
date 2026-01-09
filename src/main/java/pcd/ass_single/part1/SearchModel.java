@@ -1,12 +1,13 @@
 package pcd.ass_single.part1;
 
-import pcd.ass_single.part1.strategies.virtual_threads.ExtractTextVirtualThreads;
+import pcd.ass_single.part1.strategies.PdfWordSearcher;
+import pcd.ass_single.part1.strategies.virtual_threads.VirtualThreadSearcher;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExtractionModel {
+public class SearchModel {
 
     private List<ModelObserver> observers;
     private volatile int countFiles;
@@ -14,7 +15,7 @@ public class ExtractionModel {
     private volatile int countPdfFilesWithWord;
     private List<File> pdfs;
 
-    public ExtractionModel(){
+    public SearchModel(){
         countFiles = 0;
         countPdfFiles = 0;
         countPdfFilesWithWord = 0;
@@ -27,7 +28,7 @@ public class ExtractionModel {
     }
 
     private void scrapePdfsWithWord(String searchedWord) {
-        ExtractText textScraper = new ExtractTextVirtualThreads();
+        PdfWordSearcher textScraper = new VirtualThreadSearcher();
         try {
             textScraper.extractText(pdfs, searchedWord, this);
         } catch ( Exception e ) {

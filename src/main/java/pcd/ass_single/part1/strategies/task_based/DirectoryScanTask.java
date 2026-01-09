@@ -5,12 +5,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.RecursiveTask;
 
-public class DirectoryScrapeTask extends RecursiveTask<Integer> {
-    private final Directory directory;
+public class DirectoryScanTask extends RecursiveTask<Integer> {
+    private final DirectoryTree directory;
     private final String searchedWord;
     private final FileCounter fc;
 
-    public DirectoryScrapeTask(FileCounter fc, Directory directory, String searchedWord) {
+    public DirectoryScanTask(FileCounter fc, DirectoryTree directory, String searchedWord) {
         super();
         this.fc = fc;
         this.directory = directory;
@@ -21,8 +21,8 @@ public class DirectoryScrapeTask extends RecursiveTask<Integer> {
     protected Integer compute() {
         int count = 0;
         List<RecursiveTask<Integer>> forks = new LinkedList<>();
-        for (Directory subDirectory : directory.getSubDirectories()) {
-            DirectoryScrapeTask task = new DirectoryScrapeTask(fc, subDirectory, searchedWord);
+        for (DirectoryTree subDirectory : directory.getSubDirectories()) {
+            DirectoryScanTask task = new DirectoryScanTask(fc, subDirectory, searchedWord);
             forks.add(task);
             task.fork();
         }
@@ -36,6 +36,7 @@ public class DirectoryScrapeTask extends RecursiveTask<Integer> {
         for (RecursiveTask<Integer> task : forks) {
             count = count + task.join();
         }
+
         return count;
     }
 }

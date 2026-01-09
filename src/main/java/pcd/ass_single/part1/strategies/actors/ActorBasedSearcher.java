@@ -4,14 +4,14 @@ import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import pcd.ass_single.part1.ExtractionModel;
-import pcd.ass_single.part1.ExtractText;
+import pcd.ass_single.part1.SearchModel;
+import pcd.ass_single.part1.strategies.PdfWordSearcher;
 
 import java.io.File;
 import java.util.List;
 
 
-public class ExtractTextWithActors implements ExtractText {
+public class ActorBasedSearcher implements PdfWordSearcher {
 
     static class RequesterActor extends  AbstractActor {
         @Override
@@ -27,16 +27,16 @@ public class ExtractTextWithActors implements ExtractText {
 
     // TODO fix model logic
     @Override
-    public void extractText(List<File> pdfs, String word, ExtractionModel model) throws Exception {
+    public void extractText(List<File> pdfs, String word, SearchModel model) throws Exception {
         ActorSystem actorSystem = ActorSystem.create("PdfCounter");
-        ActorRef counter = actorSystem.actorOf(Props.create(PdfAnalyzer.class));
+        ActorRef counter = actorSystem.actorOf(Props.create(PdfAnalyzerActor.class));
 
         for (File pdf : pdfs) {
-            counter.tell(new PdfAnalyzer.PdfWordMessage(pdf, word), ActorRef.noSender());
+            counter.tell(new PdfAnalyzerActor.PdfWordMessage(pdf, word), ActorRef.noSender());
         }
 
         ActorRef requester = actorSystem.actorOf(Props.create(RequesterActor.class));
-        counter.tell(new PdfAnalyzer.GetCount(), requester);
+        counter.tell(new PdfAnalyzerActor.GetCount(), requester);
 
     }
 

@@ -3,17 +3,17 @@ package pcd.ass_single.part1.example;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.AccessPermission;
 import org.apache.pdfbox.text.PDFTextStripper;
-import pcd.ass_single.part1.ExtractText;
-import pcd.ass_single.part1.ExtractionModel;
+import pcd.ass_single.part1.strategies.PdfWordSearcher;
+import pcd.ass_single.part1.SearchModel;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public class BaseProgram implements ExtractText {
+public class BaseProgram implements PdfWordSearcher {
 
     @Override
-    public void extractText(List<File> files, String word, ExtractionModel model) throws IOException {
+    public void extractText(List<File> files, String word, SearchModel model) throws IOException {
 
         long startTime = System.currentTimeMillis();
 

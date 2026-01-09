@@ -3,7 +3,7 @@ package pcd.ass_single.part1.strategies.reactive_prog;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.AccessPermission;
 import org.apache.pdfbox.text.PDFTextStripper;
-import pcd.ass_single.part1.ExtractText;
+import pcd.ass_single.part1.strategies.PdfWordSearcher;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,9 +11,9 @@ import java.util.List;
 import io.reactivex.rxjava3.core.*;
 import io.reactivex.rxjava3.flowables.ConnectableFlowable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-import pcd.ass_single.part1.ExtractionModel;
+import pcd.ass_single.part1.SearchModel;
 
-public class ReactiveExtractText implements ExtractText {
+public class RxJavaSearcher implements PdfWordSearcher {
     private ConnectableFlowable<Integer> getHotPdfStream(List<File> pdfs, String word) throws IOException {
         Flowable<Integer> source = Flowable.create(emitter -> {
             try {
@@ -36,7 +36,7 @@ public class ReactiveExtractText implements ExtractText {
 
     // TODO fix model logic
     @Override
-    public void extractText(List<File> pdfs, String word, ExtractionModel model) throws Exception {
+    public void extractText(List<File> pdfs, String word, SearchModel model) throws Exception {
         long startTime = System.currentTimeMillis();
         try {
             ConnectableFlowable<Integer> source = getHotPdfStream(pdfs, word);

@@ -1,6 +1,6 @@
 package pcd.ass_single.part1.strategies.virtual_threads;
 
-import pcd.ass_single.part1.ExtractionModel;
+import pcd.ass_single.part1.SearchModel;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -11,9 +11,9 @@ public class Monitor {
     private Lock mutex;
     private Condition workersFinished;
     private int numFiles;
-    private ExtractionModel model;
+    private SearchModel model;
 
-    public Monitor(int numFiles, ExtractionModel model){
+    public Monitor(int numFiles, SearchModel model){
         mutex = new ReentrantLock();
         workersFinished = mutex.newCondition();
         this.numFiles = numFiles;
