@@ -1,6 +1,5 @@
 package pcd.ass_single.part1;
 
-import pcd.ass_single.part2.rmi.EventType;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,8 +19,9 @@ public class ExtractionView extends JFrame implements ActionListener, ModelObser
     public ExtractionView(ExtractionController controller) {
         this.controller = controller;
 
-        setSize(400, 60);
+        setSize(1000, 300);
         setResizable(false);
+        setTitle("PCD assignment 1");
 
         // Input fields for directory and word
         directoryPathField = new JTextField(20);
@@ -43,17 +43,27 @@ public class ExtractionView extends JFrame implements ActionListener, ModelObser
 //        JButton startButton = new JButton("Start Extraction");
 //        startButton.addActionListener(e -> handleExtraction(ExtractionEventType.START));
 
-        countFiles = new JTextField(10);
-        countPdfFiles = new JTextField(10);
+        countFiles = new JTextField(20);
+        countFiles.setEditable(false);
+        countPdfFiles = new JTextField(20);
+        countPdfFiles.setEditable(false);
         countPdfFilesWithWord = new JTextField(10);
+        countPdfFilesWithWord.setEditable(false);
 
-        JPanel panel = new JPanel();
-        panel.add(countFiles);
-        panel.add(countPdfFiles);
-        panel.add(countPdfFilesWithWord);
+        JPanel inputPanel = new JPanel();
+        inputPanel.add(directoryPathField);
+        inputPanel.add(searchWordField);
+        inputPanel.add(startButton);
+
+
+        JPanel resultPanel = new JPanel();
+        resultPanel.add(countFiles);
+        resultPanel.add(countPdfFiles);
+        resultPanel.add(countPdfFilesWithWord);
 
         setLayout(new BorderLayout());
-        add(panel, BorderLayout.NORTH);
+        add(inputPanel, BorderLayout.NORTH);
+        add(resultPanel, BorderLayout.CENTER);
 
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent ev) {
@@ -63,12 +73,12 @@ public class ExtractionView extends JFrame implements ActionListener, ModelObser
     }
 
     private void handleExtraction(ExtractionEventType action) {
-        String directoryPath = directoryPathField.getText();
-        String searchWord = searchWordField.getText();
+        String directoryPath = directoryPathField.getText().trim();
+        String searchWord = searchWordField.getText().trim();
         if (directoryPath.isEmpty() || searchWord.isEmpty()) {
-            log("Input Error", "please eneter valid inputs", JOptionPane.WARNING_MESSAGE);
+            log("Input Error", "please enter valid inputs", JOptionPane.WARNING_MESSAGE);
         } else {
-            controller.processEvent(new ExtractionEvent(ExtractionEventType.START, directoryPath, searchWord));
+            controller.processEvent(new ExtractionEvent(action, directoryPath, searchWord));
         }
     }
 
@@ -77,7 +87,7 @@ public class ExtractionView extends JFrame implements ActionListener, ModelObser
         SwingUtilities.invokeLater(() -> {
             countFiles.setText("num files: " + model.getCountFiles());
             countPdfFiles.setText("num pdf files: " + model.getCountPdfFiles());
-            countPdfFilesWithWord.setText("num pdf files with word" + model.getCountPdfFilesWithWord());
+            countPdfFilesWithWord.setText("word in: " + model.getCountPdfFilesWithWord());
         });
     }
 

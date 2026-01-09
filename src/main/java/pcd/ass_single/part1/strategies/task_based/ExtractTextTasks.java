@@ -1,6 +1,7 @@
-package pcd.ass_single.part1.task_based;
+package pcd.ass_single.part1.strategies.task_based;
 
 import pcd.ass_single.part1.ExtractText;
+import pcd.ass_single.part1.ExtractionModel;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,8 +9,9 @@ import java.util.List;
 
 public class ExtractTextTasks implements ExtractText {
 
+    //TODO fix model logix
     @Override
-    public void extractText(List<File> files, String word) throws IOException {
+    public void extractText(List<File> files, String word, ExtractionModel model) throws IOException {
         long startTime = System.currentTimeMillis();
         int Ncpu = Runtime.getRuntime().availableProcessors();
         // A system with Ncpu processors usually achieves optimum utilization with a thread pool of Ncpu + 1 threads

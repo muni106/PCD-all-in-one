@@ -1,17 +1,13 @@
-package pcd.ass_single.part1.actors;
+package pcd.ass_single.part1.strategies.actors;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import pcd.ass_single.part1.actors.PdfAnalyzer;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.encryption.AccessPermission;
-import org.apache.pdfbox.text.PDFTextStripper;
+import pcd.ass_single.part1.ExtractionModel;
 import pcd.ass_single.part1.ExtractText;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 
@@ -29,8 +25,9 @@ public class ExtractTextWithActors implements ExtractText {
         }
     }
 
+    // TODO fix model logic
     @Override
-    public void extractText(List<File> pdfs, String word) throws Exception {
+    public void extractText(List<File> pdfs, String word, ExtractionModel model) throws Exception {
         ActorSystem actorSystem = ActorSystem.create("PdfCounter");
         ActorRef counter = actorSystem.actorOf(Props.create(PdfAnalyzer.class));
 

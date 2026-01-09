@@ -1,10 +1,11 @@
-package pcd.ass_single.part1.async_event;
+package pcd.ass_single.part1.strategies.async_event;
 
 import io.vertx.core.*;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.AccessPermission;
 import org.apache.pdfbox.text.PDFTextStripper;
 import pcd.ass_single.part1.ExtractText;
+import pcd.ass_single.part1.ExtractionModel;
 
 import java.io.File;
 import java.io.IOException;
@@ -71,8 +72,9 @@ class MyVerticle extends AbstractVerticle {
 
 
 public class AsyncExtractText implements ExtractText {
+    // TODO fix model logic
     @Override
-    public void extractText(List<File> pdfs, String word) throws Exception {
+    public void extractText(List<File> pdfs, String word, ExtractionModel model) throws Exception {
 
         int workerPoolSize = Runtime.getRuntime().availableProcessors();
         VertxOptions options = new VertxOptions().setWorkerPoolSize(workerPoolSize);

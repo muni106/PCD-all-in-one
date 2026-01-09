@@ -1,16 +1,18 @@
 package pcd.ass_single.part1;
 
+import pcd.ass_single.part1.strategies.virtual_threads.ExtractTextVirtualThreads;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
 
 public class ExtractionModel {
 
     private List<ModelObserver> observers;
-    private int countFiles;
-    private int countPdfFiles;
-    private int countPdfFilesWithWord;
+    private volatile int countFiles;
+    private volatile int countPdfFiles;
+    private volatile int countPdfFilesWithWord;
+    private List<File> pdfs;
 
     public ExtractionModel(){
         countFiles = 0;
@@ -19,7 +21,18 @@ public class ExtractionModel {
         observers = new ArrayList<>();
     }
 
-    public synchronized void update() {
+    public void startFromScratch(String directoryPath, String searchWord) {
+        pdfs = collectPdfFiles(directoryPath);
+        scrapePdfsWithWord(searchWord);
+    }
+
+    private void scrapePdfsWithWord(String searchedWord) {
+        ExtractText textScraper = new ExtractTextVirtualThreads();
+        try {
+            textScraper.extractText(pdfs, searchedWord, this);
+        } catch ( Exception e ) {
+            System.err.println(e.getMessage());
+        }
 
         notifyObservers();
     }
@@ -34,12 +47,11 @@ public class ExtractionModel {
 
         if (files != null) {
             for ( File file : files ) {
-                countFiles += 1;
-                if ( file.isDirectory()) {
+                setCountFiles(countFiles + 1);
+                if (file.isDirectory()) {
                     pdfs.addAll(collectPdfFiles(file.getAbsolutePath()));
-                }
-                else if (file.isFile() && file.getName().endsWith(".pdf")) {
-                    countPdfFiles += 1;
+                } else if (file.isFile() && file.getName().endsWith(".pdf")) {
+                    setCountPdfFiles(countPdfFiles + 1);
                     pdfs.add(file);
                 }
             }
@@ -51,20 +63,31 @@ public class ExtractionModel {
         observers.add(obs);
     }
 
-    public synchronized int getCountFiles() {
+    public int getCountFiles() {
         return countFiles;
     }
 
-    public synchronized int getCountPdfFiles() {
+    public int getCountPdfFiles() {
         return countPdfFiles;
     }
 
-    public synchronized int getCountPdfFilesWithWord() {
+    public int getCountPdfFilesWithWord() {
         return countPdfFilesWithWord;
     }
 
     public void setCountPdfFilesWithWord(int countPdfFilesWithWord) {
         this.countPdfFilesWithWord = countPdfFilesWithWord;
+        notifyObservers();
+    }
+
+    public void setCountFiles(int countFiles) {
+        this.countFiles = countFiles;
+        notifyObservers();
+    }
+
+    public void setCountPdfFiles(int countPdfFiles) {
+        this.countPdfFiles = countPdfFiles;
+        notifyObservers();
     }
 
     private void notifyObservers() {

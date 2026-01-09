@@ -1,4 +1,4 @@
-package pcd.ass_single.part1.task_based;
+package pcd.ass_single.part1.strategies.task_based;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.AccessPermission;

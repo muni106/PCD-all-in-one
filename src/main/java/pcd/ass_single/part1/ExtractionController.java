@@ -18,7 +18,7 @@ public class ExtractionController {
                     Thread.sleep(1000);
                     switch (event.eventType()) {
                         case START -> {
-
+                            model.startFromScratch(event.directoryPath(), event.searchWord());
                         }
                         case STOP -> {
                         }
@@ -27,12 +27,10 @@ public class ExtractionController {
                         case RESUME -> {
                         }
                     }
-                    model.update();
                     log("[Controller] event processing done");
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-
             }).start();
         } catch (Exception e) {
             e.printStackTrace();

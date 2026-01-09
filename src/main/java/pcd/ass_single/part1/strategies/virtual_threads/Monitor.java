@@ -1,4 +1,6 @@
-package pcd.ass_single.part1.thread;
+package pcd.ass_single.part1.strategies.virtual_threads;
+
+import pcd.ass_single.part1.ExtractionModel;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -9,23 +11,27 @@ public class Monitor {
     private Lock mutex;
     private Condition workersFinished;
     private int numFiles;
+    private ExtractionModel model;
 
-    public Monitor(int numFiles){
+    public Monitor(int numFiles, ExtractionModel model){
         mutex = new ReentrantLock();
         workersFinished = mutex.newCondition();
         this.numFiles = numFiles;
         count = 0;
+        this.model = model;
     }
 
-    public void updateFoundFiles(int analyzedFiles, int filesFound){
+    public void foundWord(boolean found){
         try {
             mutex.lock();
-            count += filesFound;
-            numFiles -= analyzedFiles;
+            if (found) {
+                count += 1;
+                model.setCountPdfFilesWithWord(count);
+            }
+            numFiles -= 1;
             if (numFiles == 0) {
                 workersFinished.signal();
             }
-
         } finally {
             mutex.unlock();
         }

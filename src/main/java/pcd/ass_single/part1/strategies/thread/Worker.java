@@ -1,4 +1,4 @@
-package pcd.ass_single.part1.thread;
+package pcd.ass_single.part1.strategies.thread;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.AccessPermission;

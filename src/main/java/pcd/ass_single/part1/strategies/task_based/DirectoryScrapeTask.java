@@ -1,4 +1,4 @@
-package pcd.ass_single.part1.task_based;
+package pcd.ass_single.part1.strategies.task_based;
 
 import java.io.File;
 import java.util.LinkedList;

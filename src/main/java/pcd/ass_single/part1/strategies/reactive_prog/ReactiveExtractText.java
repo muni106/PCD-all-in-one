@@ -1,4 +1,4 @@
-package pcd.ass_single.part1.reactive_prog;
+package pcd.ass_single.part1.strategies.reactive_prog;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.AccessPermission;
@@ -11,6 +11,7 @@ import java.util.List;
 import io.reactivex.rxjava3.core.*;
 import io.reactivex.rxjava3.flowables.ConnectableFlowable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import pcd.ass_single.part1.ExtractionModel;
 
 public class ReactiveExtractText implements ExtractText {
     private ConnectableFlowable<Integer> getHotPdfStream(List<File> pdfs, String word) throws IOException {
@@ -33,8 +34,9 @@ public class ReactiveExtractText implements ExtractText {
         return hotObservable;
     }
 
+    // TODO fix model logic
     @Override
-    public void extractText(List<File> pdfs, String word) throws Exception {
+    public void extractText(List<File> pdfs, String word, ExtractionModel model) throws Exception {
         long startTime = System.currentTimeMillis();
         try {
             ConnectableFlowable<Integer> source = getHotPdfStream(pdfs, word);

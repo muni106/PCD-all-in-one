@@ -1,4 +1,4 @@
-package pcd.ass_single.part1.actors;
+package pcd.ass_single.part1.strategies.actors;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
