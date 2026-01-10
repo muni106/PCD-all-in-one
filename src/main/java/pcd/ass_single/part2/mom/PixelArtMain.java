@@ -5,7 +5,6 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.rabbitmq.client.*;
 
 public class PixelArtMain {

@@ -3,6 +3,7 @@ package pcd.ass_single.part1.strategies.thread;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.AccessPermission;
 import org.apache.pdfbox.text.PDFTextStripper;
+import pcd.ass_single.part1.SearchModel;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,33 +15,31 @@ public class Worker extends Thread {
     final private int start;
     final private int end;
     final private String searchedWord;
+    final private SearchModel model;
 
-    public Worker(Monitor cell, int start, int end, List<File> files, String word) {
+    public Worker(Monitor cell, int start, int end, List<File> files, String word, SearchModel model) {
         super("getter");
         this.cell = cell;
         this.files = files;
         this.start = start;
         this.end = end;
         this.searchedWord = word;
+        this.model = model;
     }
 
     public void run(){
         int count = 0;
         for (int i = start; i < end; ++i) {
-                System.out.println("File: " + files.get(i).getName());
                 try {
                     if (containsWord(files.get(i), searchedWord)) {
                         count += 1;
+                        model.incCountPdfFilesWithWord();
                     }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
         }
-
-        System.out.println("files from [ " + start + "-" + end + "], which are: " + count);
         cell.updateFoundFiles(end - start, count);
-
-
     }
 
     private static boolean containsWord(File pdf, String word) throws IOException {

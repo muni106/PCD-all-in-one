@@ -9,7 +9,6 @@ import java.util.List;
 
 
 public class ThreadPoolSearch implements PdfWordSearcher {
-    // TODO fix model logic
     @Override
     public void extractText(List<File> files, String word, SearchModel model) throws IOException {
 
@@ -18,13 +17,12 @@ public class ThreadPoolSearch implements PdfWordSearcher {
         // A system with Ncpu processors usually achieves optimum utilization with a thread pool of Ncpu + 1 threads
         int Nthreads = Ncpu + 1;
 
-
         Monitor m;
 
         if (files != null) {
             // i can decide the number of threads based on the number of files
             int numFiles = files.size();
-            m = new Monitor(numFiles);
+            m = new Monitor(numFiles, model);
 
             if (numFiles < Ncpu) {
                 Nthreads = numFiles;
@@ -33,19 +31,17 @@ public class ThreadPoolSearch implements PdfWordSearcher {
             int i = 0;
             int step = numFiles / Nthreads;
 
-
             while ((i + step) < numFiles) {
-                new Worker(m, i, i + step, files, word).start();
+                new Worker(m, i, i + step, files, word, model).start();
                 i += step;
             }
 
-            new Worker(m, i, numFiles, files, word).start();
+            new Worker(m, i, numFiles, files, word, model).start();
             new Output(m, startTime).start();
         }else {
             System.err.println("No files found");
         }
     }
-
 }
 
 

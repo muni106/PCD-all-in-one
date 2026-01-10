@@ -1,7 +1,7 @@
 package pcd.ass_single.part1;
 
 import pcd.ass_single.part1.strategies.PdfWordSearcher;
-import pcd.ass_single.part1.strategies.virtual_threads.VirtualThreadSearcher;
+import pcd.ass_single.part1.strategies.thread.ThreadPoolSearch;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -23,12 +23,16 @@ public class SearchModel {
     }
 
     public void startFromScratch(String directoryPath, String searchWord) {
+        countFiles = 0;
+        countPdfFiles = 0;
+        countPdfFilesWithWord = 0;
+        notifyObservers();
         pdfs = collectPdfFiles(directoryPath);
         scrapePdfsWithWord(searchWord);
     }
 
     private void scrapePdfsWithWord(String searchedWord) {
-        PdfWordSearcher textScraper = new VirtualThreadSearcher();
+        PdfWordSearcher textScraper = new ThreadPoolSearch();
         try {
             textScraper.extractText(pdfs, searchedWord, this);
         } catch ( Exception e ) {
@@ -48,11 +52,11 @@ public class SearchModel {
 
         if (files != null) {
             for ( File file : files ) {
-                setCountFiles(countFiles + 1);
+                incCountFiles();
                 if (file.isDirectory()) {
                     pdfs.addAll(collectPdfFiles(file.getAbsolutePath()));
                 } else if (file.isFile() && file.getName().endsWith(".pdf")) {
-                    setCountPdfFiles(countPdfFiles + 1);
+                    incCountPdfFiles();
                     pdfs.add(file);
                 }
             }
@@ -81,15 +85,22 @@ public class SearchModel {
         notifyObservers();
     }
 
-    public void setCountFiles(int countFiles) {
-        this.countFiles = countFiles;
+
+    public synchronized void incCountFiles() {
+        this.countFiles += 1;
         notifyObservers();
     }
 
-    public void setCountPdfFiles(int countPdfFiles) {
-        this.countPdfFiles = countPdfFiles;
+    public synchronized void incCountPdfFiles() {
+        this.countPdfFiles += 1;
         notifyObservers();
     }
+
+    public synchronized void incCountPdfFilesWithWord() {
+        this.countPdfFilesWithWord += 1;
+        notifyObservers();
+    }
+
 
     private void notifyObservers() {
         for (ModelObserver obs: observers) {
